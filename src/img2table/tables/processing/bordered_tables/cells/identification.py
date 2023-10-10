@@ -83,7 +83,7 @@ def get_cells_dataframe(horizontal_lines: List[Line], vertical_lines: List[Line]
     df_bbox = get_potential_cells_from_h_lines(df_h_lines=df_h_lines)
 
     # Cross join with vertical rows
-    df_bbox = df_bbox.with_columns(pl.max_horizontal([(pl.col('x2_bbox') - pl.col('x1_bbox')) * 0.025,
+    df_bbox = df_bbox.with_columns(pl.max_horizontal([(pl.col('x2_bbox') - pl.col('x1_bbox')) * 0.0125,
                                                       pl.lit(5.0)]).round(0).alias('h_margin')
                                    )
     df_bbox_v = df_bbox.join(df_v_lines, how='cross')
@@ -97,7 +97,7 @@ def get_cells_dataframe(horizontal_lines: List[Line], vertical_lines: List[Line]
     df_bbox_v = (df_bbox_v.with_columns((pl.min_horizontal(['y2', 'y2_bbox'])
                                          - pl.max_horizontal(['y1', 'y1_bbox'])).alias('overlapping')
                                         )
-                 .filter(pl.col('overlapping') / (pl.col('y2_bbox') - pl.col('y1_bbox')) >= 0.8)
+                 .filter(pl.col('overlapping') / (pl.col('y2_bbox') - pl.col('y1_bbox')) >= 0.975)
                  )
 
     # Get all vertical delimiters by bbox

@@ -11,14 +11,27 @@ def adjacent_cells(cell_1: Cell, cell_2: Cell) -> bool:
     :param cell_2: second cell object
     :return: boolean indicating if cells are adjacent
     """
+    # Checking if one cell is to the left of the other
+    if cell_1.x2 < cell_2.x1 or cell_2.x2 < cell_1.x1:
+        return False
+
+    # Checking if one cell is above the other
+    if cell_1.y2 < cell_2.y1 or cell_2.y2 < cell_1.y1:
+        return False
+
+    # Check if cell1 is within cell2
+    if cell_1.x1 > cell_2.x1 and cell_1.x2 < cell_2.x2 and cell_1.y1 > cell_2.y1 and cell_1.y2 < cell_2.y2:
+        return False
+
+    # Conditions for cells to be adjacent:
+    return (cell_1.x1 == cell_2.x2 or cell_1.x2 == cell_2.x1 or cell_1.y1 == cell_2.y2 or cell_1.y2 == cell_2.y1)
+
     # Check correspondence on vertical borders
     overlapping_y = min(cell_1.y2, cell_2.y2) - max(cell_1.y1, cell_2.y1)
     diff_x = min(abs(cell_1.x2 - cell_2.x1),
                  abs(cell_1.x1 - cell_2.x2),
                  abs(cell_1.x1 - cell_2.x1),
                  abs(cell_1.x2 - cell_2.x2))
-    if overlapping_y > 5 and diff_x <= min(min(cell_1.width, cell_2.width) * 0.05, 5):
-        return True
 
     # Check correspondence on horizontal borders
     overlapping_x = min(cell_1.x2, cell_2.x2) - max(cell_1.x1, cell_2.x1)
@@ -26,7 +39,9 @@ def adjacent_cells(cell_1: Cell, cell_2: Cell) -> bool:
                  abs(cell_1.y1 - cell_2.y2),
                  abs(cell_1.y1 - cell_2.y1),
                  abs(cell_1.y2 - cell_2.y2))
-    if overlapping_x > 5 and diff_y <= min(min(cell_1.height, cell_2.height) * 0.05, 5):
+
+    if (overlapping_y > 50 and diff_x <= min(min(cell_1.width, cell_2.width) * 0.05, 5)) or  \
+        (overlapping_x > 50 and diff_y <= min(min(cell_1.height, cell_2.height) * 0.05, 5)):
         return True
 
     return False

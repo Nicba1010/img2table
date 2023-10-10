@@ -65,6 +65,8 @@ class TableImage:
         minLinLength = maxLineGap = max(int(round(0.33 * self.median_line_sep)), 1) if self.median_line_sep else 10
         kernel_size = max(int(round(0.66 * self.median_line_sep)), 1) if self.median_line_sep else 20
 
+        maxLineGap = 0
+
         # Detect rows in image
         h_lines, v_lines = detect_lines(image=self.img,
                                         contours=self.contours,
@@ -93,8 +95,11 @@ class TableImage:
         # If ocr_df is available, get tables content
         if self.ocr_df is not None:
             # Get content
-            self.tables = [table.get_content(ocr_df=self.ocr_df, min_confidence=self.min_confidence)
-                           for table in self.tables]
+            self.tables = [
+                table.get_content(ocr_df=self.ocr_df, min_confidence=self.min_confidence, image=self)
+                for table
+                in self.tables
+            ]
 
         self.tables = [tb for tb in self.tables if tb.nb_rows * tb.nb_columns >= 2]
 

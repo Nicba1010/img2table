@@ -1,14 +1,14 @@
 # coding: utf-8
 from collections import OrderedDict
 from typing import Union, List
-
+import cv2
+import easyocr
+import pytesseract
 import numpy as np
-
 from img2table.tables.objects import TableObject
 from img2table.tables.objects.cell import Cell
 from img2table.tables.objects.extraction import ExtractedTable, BBox
 from img2table.tables.objects.row import Row
-
 
 class Table(TableObject):
     def __init__(self, rows: Union[Row, List[Row]]):
@@ -113,15 +113,29 @@ class Table(TableObject):
             for id_row in range(self.nb_rows):
                 self.items[id_row].items.pop(idx)
 
-    def get_content(self, ocr_df: "OCRDataframe", min_confidence: int = 50) -> "Table":
+    def get_content(self, ocr_df: "OCRDataframe", min_confidence: int = 50, image = None) -> "Table":
         """
         Retrieve text from OCRDataframe object and reprocess table to remove empty rows / columns
         :param ocr_df: OCRDataframe object
         :param min_confidence: minimum confidence in order to include a word, from 0 (worst) to 99 (best)
         :return: Table object with data attribute containing dataframe
         """
+
         # Get content for each cell
         self = ocr_df.get_text_table(table=self, min_confidence=min_confidence)
+
+
+        # reader = easyocr.Reader(lang_list=['en'])
+        for row in self.items:
+            for cell in row.items:
+                if abs(cell.x1 - cell.x2) <= 2 or abs(cell.y1 - cell.y2) <= 2:
+                    cell.content = None
+                    continue
+                cropped_cell = image.img[cell.y1:cell.y2, cell.x1:cell.x2]
+                # upscaled_cell = cv2.resize(cropped_cell, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+                cell.content = pytesseract.image_to_string(cropped_cell, 'eng').strip()
+                # result = reader.readtext(upscaled_cell)
+                # cell.content = result[0][1] if len(result) >= 1 and result[0][2] >= (min_confidence / 100.0) else None
 
         # Check for empty rows and remove if necessary
         empty_rows = list()
@@ -163,4 +177,3 @@ class Table(TableObject):
             except AssertionError:
                 return False
         return False
-

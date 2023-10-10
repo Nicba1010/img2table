@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 import cv2
 import fitz
 import numpy as np
-
 from img2table.document.base import Document
 from img2table.document.base.rotation import fix_rotation_image
 from img2table.ocr.pdf import PdfOCR
@@ -47,13 +46,25 @@ class PDF(Document):
             page = doc.load_page(page_id=page_number)
             pix = page.get_pixmap(matrix=mat)
             img = np.frombuffer(buffer=pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, 3))
+
             # To grayscale
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            # # Increase contrast
+            alpha = 1.1  # Contrast control (1.0-3.0)
+            beta = 0  # Brightness control (0-100)
+            contrast_enhanced = cv2.convertScaleAbs(gray, alpha=alpha, beta=beta)
+
+            # Thresholding for making grays whiter and blacks blacker
+            # _, thresholded = cv2.threshold(gray, 225, 255, cv2.THRESH_BINARY)
+
+            thresholded = contrast_enhanced
+
             # Handle rotation if needed
             if self.detect_rotation:
-                final, self._rotated = fix_rotation_image(img=gray)
+                final, self._rotated = fix_rotation_image(img=thresholded)
             else:
-                final, self._rotated = gray, False
+                final, self._rotated = thresholded, False
             images.append(final)
 
         return images
