@@ -17,8 +17,7 @@ jobs:
     - name: Archive artefact
       uses: actions/upload-artifact@v3
       with:
-        name: wheel
-        path: dist/*.whl
+        path: dist/img2table-0.0.0-py3-none-any.whl
 #    - name: Publish to Pypi
 #      uses: pypa/gh-action-pypi-publish@release/v1
 #      with:
