@@ -102,20 +102,21 @@ def cluster_to_table(cluster_cells: List[Cell], elements: List[Cell]) -> Table:
         for x_left, x_right in zip(h_delims, h_delims[1:]):
             # Create default cell
             default_cell = Cell(x1=x_left, y1=y_top, x2=x_right, y2=y_bottom)
+            list_cells.append(default_cell)
 
-            # Check cells that contain the default cell
-            containing_cells = sorted([c for c in matching_cells
-                                       if is_contained_cell(inner_cell=default_cell, outer_cell=c, percentage=0.9)],
-                                      key=lambda c: c.area)
-
-            # Append either a cell that contain the default cell
-            if containing_cells:
-                list_cells.append(containing_cells.pop(0))
-            else:
-                # Get x value of closest matching cells
-                x_value = sorted([x_val for cell in matching_cells for x_val in [cell.x1, cell.x2]],
-                                 key=lambda x: min(abs(x - x_left), abs(x - x_right))).pop(0)
-                list_cells.append(Cell(x1=x_value, y1=y_top, x2=x_value, y2=y_bottom))
+            # # Check cells that contain the default cell
+            # containing_cells = sorted([c for c in matching_cells
+            #                            if is_contained_cell(inner_cell=default_cell, outer_cell=c, percentage=0.9)],
+            #                           key=lambda c: c.area)
+            #
+            # # Append either a cell that contain the default cell
+            # if containing_cells:
+            #     list_cells.append(containing_cells.pop(0))
+            # else:
+            #     # Get x value of closest matching cells
+            #     x_value = sorted([x_val for cell in matching_cells for x_val in [cell.x1, cell.x2]],
+            #                      key=lambda x: min(abs(x - x_left), abs(x - x_right))).pop(0)
+            #     list_cells.append(Cell(x1=x_value, y1=y_top, x2=x_value, y2=y_bottom))
 
         list_rows.append(Row(cells=list_cells))
 
